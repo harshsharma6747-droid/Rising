@@ -1,0 +1,609 @@
+/* ---
+   Rising Star Academy - Main Stylesheet
+   --- */
+
+/* 1. Google Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+
+/* 2. Root Variables (Theme) */
+:root {
+    /* Colors from user */
+    --color-primary: #93BFC7;  /* Soft Blue */
+    --color-accent: #ECF438;   /* Vibrant Yellow */
+    --color-bg-tint-1: #CBF3BB; /* Light Green 1 */
+    --color-bg-tint-2: #ABE7B2; /* Light Green 2 */
+    
+    /* Light Mode */
+    --color-bg: #FFFFFF;
+    --color-bg-secondary: #f9f9f9;
+    --color-text: #333333;
+    --color-text-light: #555555;
+    --color-border: #eeeeee;
+    --color-navbar-bg: rgba(255, 255, 255, 0.9);
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    /* Fonts */
+    --font-primary: 'Poppins', sans-serif;
+    --font-secondary: 'Nunito Sans', sans-serif;
+
+    /* Spacing */
+    --navbar-height: 70px;
+    --container-width: 1140px;
+    --border-radius: 8px;
+}
+
+/* 3. Dark Mode Variables */
+body.dark-mode {
+    --color-bg: #1a1a1a;
+    --color-bg-secondary: #252525;
+    --color-text: #f1f1f1;
+    --color-text-light: #cccccc;
+    --color-border: #333333;
+    --color-navbar-bg: rgba(26, 26, 26, 0.9);
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 4. General Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-secondary);
+    font-size: 16px;
+    line-height: 1.7;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+}
+
+p {
+    margin-bottom: 1rem;
+    color: var(--color-text-light);
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--color-accent);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+ul {
+    list-style-type: none;
+}
+
+/* 5. Utility Classes */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.section {
+    padding: 60px 0;
+}
+
+.section-alt {
+    background-color: var(--color-bg-secondary);
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: transparent;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn-accent {
+    background-color: var(--color-accent);
+    color: #333;
+}
+
+.btn-accent:hover {
+    background-color: transparent;
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 6. Header / Navigation Bar */
+.header {
+    width: 100%;
+    height: var(--navbar-height);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background-color: var(--color-navbar-bg);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--box-shadow);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.navbar {
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo img {
+    max-height: 55px; /* Adjust as needed */
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    padding: 10px 0;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--color-primary);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-toggle {
+    font-size: 1.5rem;
+    color: var(--color-text);
+    cursor: pointer;
+    display: none; /* Hidden on desktop */
+}
+
+/* Dark Mode Toggle */
+.dark-mode-toggle {
+    cursor: pointer;
+    font-size: 1.3rem;
+    color: var(--color-text);
+}
+
+/* Mobile Menu */
+@media (max-width: 992px) {
+    .nav-menu {
+        position: fixed;
+        top: var(--navbar-height);
+        right: -100%;
+        width: 100%;
+        height: calc(100vh - var(--navbar-height));
+        background-color: var(--color-bg);
+        flex-direction: column;
+        justify-content: center;
+        gap: 2rem;
+        transition: right 0.4s ease-in-out;
+    }
+
+    .nav-menu.active {
+        right: 0;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+}
+
+/* 7. Hero Section (Homepage) */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    min-height: 600px;
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('../images/hero-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #fff;
+    text-align: center;
+}
+
+.hero-content {
+    max-width: 700px;
+}
+
+.hero-content h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.hero-content .tagline {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    color: var(--color-accent);
+}
+
+/* 8. Notices Section */
+.notices-section {
+    padding: 40px 0;
+}
+
+.notice-board {
+    background: var(--color-bg-secondary);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--box-shadow);
+}
+
+.notice-board h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.notice-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notice-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-border);
+}
+.notice-item:last-child {
+    border-bottom: none;
+}
+
+.notice-date {
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    min-width: 70px;
+    height: fit-content;
+}
+
+.notice-date span {
+    display: block;
+    font-size: 1.5rem;
+    line-height: 1.2;
+}
+
+.notice-content p {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+}
+
+.notice-content span {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+}
+
+.notice-content a {
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* 9. About Us Page */
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.about-image img {
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.message-card {
+    background: var(--color-bg-secondary);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.message-card img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* 10. Gallery Page */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.1);
+}
+
+/* 11. Forms (Contact & Admissions) */
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--color-bg-secondary);
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-secondary);
+}
+
+.form-group textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+/* 12. Contact Page */
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.contact-info ul li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.contact-info ul li i {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    width: 30px;
+    text-align: center;
+}
+
+.map-container {
+    width: 100%;
+    height: 450px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* 13. Portal / Admin Pages */
+.portal-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding-top: var(--navbar-height);
+}
+
+.portal-form {
+    width: 100%;
+    max-width: 450px;
+    background: var(--color-bg-secondary);
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    text-align: center;
+}
+
+.portal-form h2 {
+    margin-bottom: 2rem;
+}
+
+.portal-dashboard,
+.admin-dashboard {
+    padding-top: 40px;
+    display: none; /* Hidden by default */
+}
+
+.admin-dashboard .form-container {
+    margin-bottom: 2rem;
+}
+
+/* 14. Footer */
+.footer {
+    background: #333;
+    color: #f1f1f1;
+    padding: 40px 0 20px 0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 30px;
+}
+
+.footer-col h4 {
+    color: var(--color-accent);
+    margin-bottom: 1.5rem;
+}
+
+.footer-col p, .footer-col a {
+    color: #cccccc;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.footer-col a:hover {
+    color: #fff;
+}
+
+.footer-socials {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.footer-socials a {
+    font-size: 1.5rem;
+    color: #cccccc;
+}
+
+.footer-bottom {
+    text-align: center;
+    border-top: 1px solid #555;
+    padding-top: 20px;
+    font-size: 0.9rem;
+    color: #cccccc;
+}
+
+/* 15. Responsive Media Queries */
+@media (max-width: 992px) {
+    .about-grid, .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-content h1 {
+        font-size: 2.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .section {
+        padding: 40px 0;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .hero {
+        height: 80vh;
+    }
+
+    .hero-content h1 {
+        font-size: 2.2rem;
+    }
+    .hero-content .tagline {
+        font-size: 1.2rem;
+    }
+
+    .message-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-grid {
+        text-align: center;
+    }
+
+    .footer-socials {
+        justify-content: center;
+    }
+}
