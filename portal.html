@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal | Rising Star Academy School</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="icon" href="assets/images/logo.png" type="image/png">
+</head>
+<body>
+
+    <header class="header">
+        <nav class="navbar container">
+            <a href="index.html" class="nav-logo">
+                <img src="assets/images/logo.png" alt="Rising Star Academy Logo">
+            </a>
+
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <span class="dark-mode-toggle" id="dark-mode-toggle">
+                    <i class="fas fa-moon"></i>
+                </span>
+                <div class="nav-toggle" id="nav-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="portal-container">
+            
+            <div class="portal-form" id="login-container">
+                <h2>Parent & Student Portal</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="email" style="text-align: left;">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" style="text-align: left;">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="login-btn">Login</button>
+                    <p id="login-error" style="color: red; margin-top: 1rem;"></p>
+                    <p style="margin-top: 1rem;">Don't have an account? Contact the school office.</p>
+                </form>
+            </div>
+
+            <div class="container portal-dashboard" id="dashboard-container">
+                <h1 class="section-title" id="welcome-message">Welcome, Parent!</h1>
+                <p>Here you can find information about your child's progress.</p>
+                <div id="student-info">
+                    <h3>Homework</h3>
+                    <p>Loading homework...</p>
+                    </div>
+                
+                <button id="logout-btn" class="btn btn-accent">Logout</button>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="footer" style="margin-top: 0;">
+        <div class="container">
+            <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+                <p>© 2025 Rising Star Academy School. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="assets/js/firebase.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <script type="module">
+        import { auth, signInWithEmailAndPassword, onAuthStateChanged, signOut, db, doc, getDoc } from './assets/js/firebase.js';
+
+        const loginContainer = document.getElementById('login-container');
+        const dashboardContainer = document.getElementById('dashboard-container');
+        const loginForm = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-btn');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
+        const welcomeMsg = document.getElementById('welcome-message');
+        const studentInfo = document.getElementById('student-info');
+
+        // --- Check auth state ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                loginContainer.style.display = 'none';
+                dashboardContainer.style.display = 'block';
+                fetchUserData(user);
+            } else {
+                // User is signed out
+                loginContainer.style.display = 'block';
+                dashboardContainer.style.display = 'none';
+            }
+        });
+
+        // --- Login ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            loginError.textContent = '';
+
+            const email = loginForm['login-email'].value;
+            const password = loginForm['login-password'].value;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                // Auth state change will handle UI swap
+            } catch (error) {
+                loginError.textContent = 'Error: Invalid email or password.';
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        });
+
+        // --- Logout ---
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                // Auth state change will handle UI swap
+            } catch (error) {
+                console.error('Logout Error:', error);
+            }
+        });
+
+        // --- Fetch User Data ---
+        async function fetchUserData(user) {
+            welcomeMsg.textContent = `Welcome, ${user.displayName || 'Parent'}!`;
+            
+            // Example: Fetch data from a 'students' collection
+            // This assumes you have a 'students' collection where doc ID = user.uid
+            try {
+                const studentDocRef = doc(db, 'students', user.uid);
+                const studentDoc = await getDoc(studentDocRef);
+                
+                if (studentDoc.exists()) {
+                    const data = studentDoc.data();
+                    studentInfo.innerHTML = `
+                        <h3>Student: ${data.studentName} (Class ${data.className})</h3>
+                        <h4>Homework:</h4>
+                        <p>${data.homework || 'No homework assigned.'}</p>
+                        <h4>Attendance:</h4>
+                        <p>${data.attendance || 'N/A'}</p>
+                    `;
+                } else {
+                    studentInfo.innerHTML = '<p>Could not find student details. Please contact support.</p>';
+                }
+            } catch (error) {
+                console.error("Error fetching student data:", error);
+                studentInfo.innerHTML = '<p>Error loading student data.</p>';
+            }
+        }
+
+    </script>
+</body>
+</html>
