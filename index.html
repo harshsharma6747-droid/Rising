@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rising Star Academy School | make the right beginning with us</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="icon" href="assets/images/logo.png" type="image/png">
+</head>
+<body>
+
+    <header class="header">
+        <nav class="navbar container">
+            <a href="index.html" class="nav-logo">
+                <img src="assets/images/logo.png" alt="Rising Star Academy Logo">
+            </a>
+
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="index.html" class="nav-link active">Home</a></li>
+                <li class="nav-item"><a href="about.html" class="nav-link">About Us</a></li>
+                <li class="nav-item"><a href="academics.html" class="nav-link">Academics</a></li>
+                <li class="nav-item"><a href="admissions.html" class="nav-link">Admissions</a></li>
+                <li class="nav-item"><a href="student-life.html" class="nav-link">Student Life</a></li>
+                <li class="nav-item"><a href="gallery.html" class="nav-link">Gallery</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="portal.html" class="btn btn-primary">Portal</a>
+                <span class="dark-mode-toggle" id="dark-mode-toggle">
+                    <i class="fas fa-moon"></i>
+                </span>
+                <div class="nav-toggle" id="nav-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content fade-in">
+                <h1>Rising Star Academy School</h1>
+                <p class="tagline">make the right beginning with us</p>
+                <a href="admissions.html" class="btn btn-accent">Apply Now</a>
+                <a href="about.html" class="btn btn-primary">Learn More</a>
+            </div>
+        </section>
+
+        <section class="section notices-section">
+            <div class="container">
+                <div class="notice-board fade-in">
+                    <h3><i class="fas fa-bullhorn"></i> Latest Notices & Events</h3>
+                    <div class="notice-list" id="notice-list">
+                        <p id="loading-notices">Loading latest notices...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-alt">
+            <div class="container">
+                <div class="about-grid fade-in">
+                    <div class="about-content">
+                        <h2 class="section-title">Welcome to Rising Star Academy</h2>
+                        <p>At Rising Star Academy, we believe in nurturing young minds and making the right beginning for a bright future. Our dedicated faculty and modern infrastructure provide a safe, stimulating, and creative learning environment.</p>
+                        <p>From Nursery to 10th standard, we focus on holistic development, blending academic excellence with co-curricular activities. Join us and become a part of our growing family.</p>
+                        <a href="about.html" class="btn btn-primary">Read More About Us</a>
+                    </div>
+                    <div class="about-image">
+                        <img src="assets/images/about-img.png" alt="School Campus">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container text-center">
+                <h2 class="section-title fade-in">Quick Links</h2>
+                <div class="quick-links-grid fade-in"> <a href="academics.html" class="btn btn-accent">Academics</a>
+                    <a href="gallery.html" class="btn btn-accent">Our Gallery</a>
+                    <a href="contact.html" class="btn btn-accent">Contact Us</a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <img src="assets/images/logo.png" alt="Rising Star Logo" style="max-width: 150px; background: #fff; border-radius: 8px; padding: 10px;">
+                    <p>Rising Star Academy School<br>Kuraj, Rajsamand</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a href="about.html">About Us</a>
+                    <a href="admissions.html">Admissions</a>
+                    <a href="academics.html">Academics</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-phone"></i> +91 99823 62434</p>
+                    <p><i class="fas fa-envelope"></i> rsakuraj@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Kuraj, Rajsamand</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Follow Us</h4>
+                    <div class="footer-socials">
+                        <a href="https://www.facebook.com/profile.php?id=100057679950927" target="_blank"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/ameta.lalit?igsh=Z2oxczB3bGtycDl0" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://youtube.com/@lalitameta2901?si=oVvpmZ9fWWEQeLaa" target="_blank"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Rising Star Academy School. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="assets/js/firebase.js"></script>
+    
+    <script src="assets/js/main.js"></script>
+
+    <script type="module">
+        import { db, collection, getDocs, query, orderBy, limit } from './assets/js/firebase.js';
+
+        const noticeList = document.getElementById('notice-list');
+        const loadingNotices = document.getElementById('loading-notices');
+
+        async function fetchNotices() {
+            try {
+                const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"), limit(5));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    loadingNotices.textContent = 'No recent notices found.';
+                    return;
+                }
+
+                noticeList.innerHTML = ''; // Clear loading message
+                querySnapshot.forEach((doc) => {
+                    const notice = doc.data();
+                    const date = notice.createdAt.toDate();
+                    const day = date.getDate();
+                    const month = date.toLocaleString('default', { month: 'short' }).toUpperCase();
+
+                    const noticeEl = document.createElement('div');
+                    noticeEl.classList.add('notice-item');
+                    noticeEl.innerHTML = `
+                        <div class="notice-date">
+                            <span>${day}</span>
+                            ${month}
+                        </div>
+                        <div class="notice-content">
+                            <p>${notice.title}</p>
+                            <span>${notice.type}</span>
+                            ${notice.fileURL ? `<br><a href="${notice.fileURL}" target="_blank">Download PDF</a>` : ''}
+                        </div>
+                    `;
+                    noticeList.appendChild(noticeEl);
+                });
+            } catch (error) {
+                console.error("Error fetching notices: ", error);
+                loadingNotices.textContent = 'Could not load notices. Please try again later.';
+            }
+        }
+
+        fetchNotices();
+    </script>
+</body>
+</html>
