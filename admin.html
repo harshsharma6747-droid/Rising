@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Rising Star Academy</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="icon" href="assets/images/logo.png" type="image/png">
+</head>
+<body>
+
+    <header class="header">
+        <nav class="navbar container">
+            <a href="index.html" class="nav-logo">
+                <img src="assets/images/logo.png" alt="Rising Star Academy Logo">
+            </a>
+            <div class="nav-actions">
+                <span class="dark-mode-toggle" id="dark-mode-toggle">
+                    <i class="fas fa-moon"></i>
+                </span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="portal-container">
+            
+            <div class="portal-form" id="admin-login-container">
+                <h2>Admin Login</h2>
+                <form id="admin-login-form">
+                    <div class="form-group">
+                        <label for="admin-email" style="text-align: left;">Admin Email</label>
+                        <input type="email" id="admin-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-password" style="text-align: left;">Password</label>
+                        <input type="password" id="admin-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="admin-login-btn">Login</button>
+                    <p id="admin-login-error" style="color: red; margin-top: 1rem;"></p>
+                </form>
+            </div>
+
+            <div class="container admin-dashboard" id="admin-dashboard-container">
+                <h1 class="section-title" id="admin-welcome-message">Admin Dashboard</h1>
+                <button id="admin-logout-btn" class="btn btn-accent" style="float: right;">Logout</button>
+                <div style="clear: both;"></div>
+
+                <div class="form-container">
+                    <h3>Post New Notice or Event</h3>
+                    <form id="notice-form">
+                        <div class="form-group">
+                            <label for="notice-title">Title</label>
+                            <input type="text" id="notice-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="notice-type">Type</label>
+                            <select id="notice-type" required>
+                                <option value="Notice">Notice</option>
+                                <option value="Event">Event</option>
+                                <option value="Circular">Circular</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="notice-file">Upload PDF (Optional)</label>
+                            <input type="file" id="notice-file" accept=".pdf">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="notice-submit-btn">Post Notice</button>
+                        <p id="notice-form-status"></p>
+                    </form>
+                </div>
+
+                <div class="form-container">
+                    <h3>Upload to Gallery</h3>
+                    <form id="gallery-form">
+                        <div class="form-group">
+                            <label for="gallery-caption">Image Caption (Optional)</label>
+                            <input type="text" id="gallery-caption">
+                        </div>
+                        <div class="form-group">
+                            <label for="gallery-file">Image File</label>
+                            <input type="file" id="gallery-file" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="gallery-submit-btn">Upload Image</button>
+                        <p id="gallery-form-status"></p>
+                    </form>
+                </div>
+                
+                <div class="form-container">
+                    <h3>New Admission Applications</h3>
+                    <div id="admission-list">
+                        <p>Loading applications...</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="footer" style="margin-top: 0;">
+        <div class="container">
+            <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+                <p>© 2025 Rising Star Academy School. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="assets/js/firebase.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <script type="module">
+        import { 
+            auth, signInWithEmailAndPassword, onAuthStateChanged, signOut, 
+            db, collection, addDoc, getDocs, query, orderBy, 
+            storage, ref, uploadBytesResumable, getDownloadURL 
+        } from './assets/js/firebase.js';
+
+        // --- Auth Elements ---
+        const loginContainer = document.getElementById('admin-login-container');
+        const dashboardContainer = document.getElementById('admin-dashboard-container');
+        const loginForm = document.getElementById('admin-login-form');
+        const loginBtn = document.getElementById('admin-login-btn');
+        const loginError = document.getElementById('admin-login-error');
+        const logoutBtn = document.getElementById('admin-logout-btn');
+
+        // --- Notice Form Elements ---
+        const noticeForm = document.getElementById('notice-form');
+        const noticeSubmitBtn = document.getElementById('notice-submit-btn');
+        const noticeStatus = document.getElementById('notice-form-status');
+        
+        // --- Gallery Form Elements ---
+        const galleryForm = document.getElementById('gallery-form');
+        const gallerySubmitBtn = document.getElementById('gallery-submit-btn');
+        const galleryStatus = document.getElementById('gallery-form-status');
+        const galleryFile = document.getElementById('gallery-file');
+
+        // --- Admission List ---
+        const admissionList = document.getElementById('admission-list');
+
+        // --- Check Auth State ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Simple check: This doesn't check *if* they are an admin, just if they are logged in.
+                // For a real app, use Custom Claims (requires Firebase Functions) to verify admin role.
+                console.log("Admin user logged in");
+                loginContainer.style.display = 'none';
+                dashboardContainer.style.display = 'block';
+                fetchAdmissions();
+            } else {
+                loginContainer.style.display = 'block';
+                dashboardContainer.style.display = 'none';
+            }
+        });
+
+        // --- Admin Login ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            loginError.textContent = '';
+            
+            const email = loginForm['admin-email'].value;
+            const password = loginForm['admin-password'].value;
+
+            try {
+                // IMPORTANT: For security, you should have a separate list of admin emails/UIDs to check against.
+                // Best practice is Firebase Custom Claims.
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                loginError.textContent = 'Error: Invalid admin credentials.';
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        });
+
+        // --- Admin Logout ---
+        logoutBtn.addEventListener('click', () => signOut(auth));
+
+        // --- 1. Handle Notice Form ---
+        noticeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            noticeSubmitBtn.disabled = true;
+            noticeSubmitBtn.textContent = 'Posting...';
+            noticeStatus.textContent = '';
+
+            const title = noticeForm['notice-title'].value;
+            const type = noticeForm['notice-type'].value;
+            const file = noticeForm['notice-file'].files[0];
+            let fileURL = null;
+
+            try {
+                // If file exists, upload it first
+                if (file) {
+                    const storageRef = ref(storage, `notices/${Date.now()}_${file.name}`);
+                    const uploadTask = await uploadBytesResumable(storageRef, file);
+                    fileURL = await getDownloadURL(uploadTask.ref);
+                }
+                
+                // Add notice metadata to Firestore
+                await addDoc(collection(db, "announcements"), {
+                    title: title,
+                    type: type,
+                    fileURL: fileURL, // will be null if no file
+                    createdAt: new Date()
+                });
+
+                noticeForm.reset();
+                noticeStatus.textContent = 'Notice posted successfully!';
+                noticeStatus.style.color = 'green';
+
+            } catch (error) {
+                console.error("Error posting notice: ", error);
+                noticeStatus.textContent = 'Error posting notice.';
+                noticeStatus.style.color = 'red';
+            } finally {
+                noticeSubmitBtn.disabled = false;
+                noticeSubmitBtn.textContent = 'Post Notice';
+            }
+        });
+
+        // --- 2. Handle Gallery Upload ---
+        galleryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = galleryFile.files[0];
+            const caption = galleryForm['gallery-caption'].value;
+
+            if (!file) {
+                galleryStatus.textContent = 'Please select an image.';
+                galleryStatus.style.color = 'red';
+                return;
+            }
+
+            gallerySubmitBtn.disabled = true;
+            gallerySubmitBtn.textContent = 'Uploading...';
+            galleryStatus.textContent = 'Starting upload...';
+
+            try {
+                const storageRef = ref(storage, `gallery/${Date.now()}_${file.name}`);
+                const uploadTask = uploadBytesResumable(storageRef, file);
+
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        galleryStatus.textContent = 'Upload is ' + Math.round(progress) + '% done';
+                    }, 
+                    (error) => {
+                        console.error("Upload failed:", error);
+                        galleryStatus.textContent = 'Upload failed.';
+                        galleryStatus.style.color = 'red';
+                        gallerySubmitBtn.disabled = false;
+                        gallerySubmitBtn.textContent = 'Upload Image';
+                    }, 
+                    async () => {
+                        // Upload complete, get URL
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        
+                        // Add image info to Firestore
+                        await addDoc(collection(db, "gallery"), {
+                            imageURL: downloadURL,
+                            caption: caption,
+                            fileName: file.name,
+                            uploadedAt: new Date()
+                        });
+
+                        galleryForm.reset();
+                        galleryStatus.textContent = 'Image uploaded successfully!';
+                        galleryStatus.style.color = 'green';
+                        gallerySubmitBtn.disabled = false;
+                        gallerySubmitBtn.textContent = 'Upload Image';
+                    }
+                );
+
+            } catch (error) {
+                console.error("Error uploading image: ", error);
+                galleryStatus.textContent = 'An error occurred.';
+                galleryStatus.style.color = 'red';
+                gallerySubmitBtn.disabled = false;
+                gallerySubmitBtn.textContent = 'Upload Image';
+            }
+        });
+
+        // --- 3. Fetch Admissions ---
+        async function fetchAdmissions() {
+            try {
+                const q = query(collection(db, "admissions"), orderBy("submittedAt", "desc"));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    admissionList.innerHTML = '<p>No new applications.</p>';
+                    return;
+                }
+
+                admissionList.innerHTML = ''; // Clear loading
+                querySnapshot.forEach((doc) => {
+                    const app = doc.data();
+                    const el = document.createElement('div');
+                    el.style.borderBottom = '1px solid var(--color-border)';
+                    el.style.padding = '1rem 0';
+                    el.innerHTML = `
+                        <strong>${app.studentName}</strong> (Class: ${app.className})<br>
+                        Parent: ${app.parentName} | Phone: ${app.parentPhone}<br>
+                        Status: <strong>${app.status}</strong>
+                    `;
+                    admissionList.appendChild(el);
+                });
+            } catch (error) {
+                console.error("Error fetching admissions: ", error);
+                admissionList.innerHTML = '<p>Error loading applications.</p>';
+            }
+        }
+
+    </script>
+</body>
+</html>
